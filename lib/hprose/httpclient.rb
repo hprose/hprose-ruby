@@ -14,7 +14,7 @@
 #                                                          #
 # hprose http client for ruby                              #
 #                                                          #
-# LastModified: Mar 8, 2014                                #
+# LastModified: Mar 10, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -26,9 +26,6 @@ require "uri"
 
 module Hprose
   class HttpClient < Client
-    include Tags
-    @@cookie_manager = {}
-    @@cookie_manager_mutex = Mutex.new
     public
     def initialize(uri = nil)
       super
@@ -87,6 +84,8 @@ module Hprose
       end
     end
     private
+    @@cookie_manager = {}
+    @@cookie_manager_mutex = Mutex.new
     def _set_cookie(cookielist, host)
       @@cookie_manager_mutex.synchronize do
         cookielist.each do |cookies|

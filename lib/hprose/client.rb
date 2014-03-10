@@ -14,19 +14,37 @@
 #                                                          #
 # hprose client for ruby                                   #
 #                                                          #
-# LastModified: Mar 8, 2014                                #
+# LastModified: Mar 10, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
 
 require "hprose/common"
 require "hprose/io"
+require "uri"
 
 module Hprose
   class Client
-    include Tags
-    include ResultMode
+    class << self
+      alias :__new__ :new
+      def inherited(subclass)
+        class << subclass
+          alias :new :__new__
+        end
+      end
+    end
     public
+    def self.new(uri)
+      u = URI.parse(uri)
+      case u.scheme
+      when 'http', 'https' then
+        return HttpClient.new(uri)
+      when 'tcp', 'tcp4', 'tcp6' then
+        return TcpClient.new(uri)
+      else
+        raise Exception.exception("The " << u.scheme << " client isn't implemented.")
+      end
+    end
     def initialize(uri = nil)
       @onerror = nil
       @filter = Filter.new
@@ -82,6 +100,8 @@ module Hprose
       raise NotImplementedError.new("#{self.class.name}#send_and_receive is an abstract method")
     end
     private
+    include Tags
+    include ResultMode
     def do_output(methodname, args, byref, simple)
       stream = StringIO.new
       writer = Writer.new(stream, simple)

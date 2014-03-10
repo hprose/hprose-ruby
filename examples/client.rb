@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'hprose'
 
-client = HproseHttpClient.new('http://localhost:3000/')
+client = HproseClient.new('http://localhost:3000/')
 def error(name, e)
   puts name
   puts e
