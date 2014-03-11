@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'hprose'
 
-client = HproseClient.new('http://localhost:3000/')
+client = HproseClient.new('http://127.0.0.1:3000/')
 def error(name, e)
   puts name
   puts e
@@ -12,7 +12,7 @@ math = client.use_service(nil, :math)
 
 client.hello('World') { |result|
   puts result
-}
+}.join
 
 math.add(1, 2) { |result|
   puts result

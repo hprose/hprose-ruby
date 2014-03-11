@@ -14,7 +14,7 @@
 #                                                          #
 # hprose client for ruby                                   #
 #                                                          #
-# LastModified: Mar 10, 2014                               #
+# LastModified: Mar 11, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -119,7 +119,7 @@ module Hprose
     end
     def do_input(data, args, resultMode)
       data = @filter.input_filter(data)
-      raise Exception.exception("Wrong Response: \r\n#{data}") if data[data.size - 1].ord != TagEnd
+      raise Exception.exception("Wrong Response: \r\n#{data}") if data.nil? or data.empty? or data[data.size - 1].ord != TagEnd
       return data if resultMode == RawWithEndTag
       return data.chop! if resultMode == Raw
       stream = StringIO.new(data, 'rb')

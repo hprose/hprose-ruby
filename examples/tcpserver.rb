@@ -14,7 +14,7 @@ class User
 end
 
 def getUser()
-  return User.new
+  return User.new()
 end
 
 
@@ -33,16 +33,17 @@ end
 
 HproseClassManager.register(User, "User")
 
-app = HproseHttpService.new
+server = HproseTcpServer.new
+server.port = 4321
 
-app.add(:hello)
-app.add(:sum) { |*num|
+server.add(:hello)
+server.add(:sum) { |*num|
   result = 0
   num.each { |item| result += item }
   result
 }
-app.add(:getUser)
-app.add_missing_function(:mf)
-app.add(MyService.new, :math)
-app.debug = true
-Rack::Handler::WEBrick.run(app, {:Port => 3000})
+server.add(:getUser)
+server.add_missing_function(:mf)
+server.add(MyService.new, :math)
+server.debug = true
+server.start

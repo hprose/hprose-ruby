@@ -14,14 +14,13 @@
 #                                                          #
 # hprose service for ruby                                  #
 #                                                          #
-# LastModified: Mar 8, 2014                                #
+# LastModified: Mar 11, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
 
 require "hprose/common"
 require "hprose/io"
-require "thread"
 
 module Hprose
   class Service
@@ -330,6 +329,7 @@ module Hprose
     def handle(data, context)
       begin
         data = @filter.input_filter(data)
+        raise Exception.exception("Wrong Request: \r\n#{data}") if data.nil? or data.empty? or data[data.size - 1].ord != TagEnd
         istream = StringIO.new(data, 'rb')
         tag = istream.getbyte
         case tag

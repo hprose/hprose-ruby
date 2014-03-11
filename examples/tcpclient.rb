@@ -8,4 +8,24 @@ def error(name, e)
 end
 client.onerror = :error
 
-puts(client.hello('World'))
+math = client.use_service(nil, :math)
+
+client.hello('World') { |result|
+  puts result
+}.join
+
+math.add(1, 2) { |result|
+  puts result
+}.join
+
+math.sub(1, 2) { |result|
+  puts result
+}.join
+
+puts client.sum(1,3,4,5,6,7)
+user = client.getUser()
+puts user.name
+puts user.age
+
+puts client.hi('hprose')
+puts client.push([user, user, user])
