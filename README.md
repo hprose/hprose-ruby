@@ -1,5 +1,7 @@
 # Hprose for Ruby
 
+[![Gem Version](https://badge.fury.io/rb/hprose.png)](http://badge.fury.io/rb/hprose)
+
 *Hprose* is a High Performance Remote Object Service Engine.
 
 It is a modern, lightweight, cross-language, cross-platform, object-oriented, high performance, remote dynamic communication middleware. It is not only easy to use, but powerful. You just need a little time to learn, then you can use it to easily construct cross language cross platform distributed application system.
