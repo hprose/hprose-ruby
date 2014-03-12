@@ -34,6 +34,8 @@ module Hprose
       @client_access_policy_xml_file = nil
       @client_access_policy_xml_content = nil
       @on_send_header = nil
+      @last_modified = Date.today.strftime("%a, %d %b %Y %H:%M:%S GMT")
+      @etag = format('"%x:%x"', rand(2147483647), rand(2147483647))
     end
     attr_accessor :crossdomain
     attr_accessor :p3p
@@ -79,8 +81,9 @@ module Hprose
         return result if result
       end
       header = default_header(context)
+      statuscode = 200
+      body = ''
       begin
-        statuscode = 200
         if (context['REQUEST_METHOD'] == 'GET') and @get then
           body = do_function_list
         elsif (context['REQUEST_METHOD'] == 'POST') then

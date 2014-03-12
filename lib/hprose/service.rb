@@ -295,7 +295,6 @@ module Hprose
         aliasname = name.downcase
         args = []
         byref = false
-        result = nil
         tag = simpleReader.check_tags([TagList, TagCall, TagEnd])
         if tag == TagList then
           reader = Reader.new(istream)
@@ -324,8 +323,7 @@ module Hprose
         fire_after_invoke_event(name, args, byref, result, context)
         ostream = StringIO.new
         if resultMode == RawWithEndTag then
-          ostream.write(result)
-          return response_end(ostream)
+          return @filter.output_filter(result)
         elsif resultMode == Raw then
           ostream.write(result)
         else
@@ -337,14 +335,14 @@ module Hprose
             writer = Writer.new(ostream, simple)
             writer.serialize(result)
             if byref then
-              writer.stream.putc(TagArgument)
+              ostream.putc(TagArgument)
               writer.reset
               writer.write_list(args)
             end
           end
         end
       end while tag == TagCall
-      writer.stream.putc(TagEnd)
+      ostream.putc(TagEnd)
       return response_end(ostream)
     end
     def do_function_list()
@@ -356,6 +354,7 @@ module Hprose
       return response_end(ostream)
     end
     def handle(data, context)
+      istream = nil
       begin
         data = @filter.input_filter(data)
         raise Exception.exception("Wrong Request: \r\n#{data}") if data.nil? or data.empty? or data[data.size - 1].ord != TagEnd
@@ -366,6 +365,7 @@ module Hprose
         when TagEnd then return do_function_list
         else raise Exception.exception("Wrong Request: \r\n#{data}")
         end
+      rescue ::Interrupt => e
       rescue ::Exception => e
         return do_error(e, context)
       ensure
