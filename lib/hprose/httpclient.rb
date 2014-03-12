@@ -14,7 +14,7 @@
 #                                                          #
 # hprose http client for ruby                              #
 #                                                          #
-# LastModified: Mar 10, 2014                               #
+# LastModified: Mar 12, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -55,7 +55,6 @@ module Hprose
       httpclient.open_timeout = @timeout
       httpclient.read_timeout = @timeout
       httpclient.use_ssl = (@uri.scheme == 'https')
-      #httpclient.set_debug_output $stderr
       httpclient.start
       headers = {'Content-Type' => 'application/hprose',
                  'Connection' => 'close'}

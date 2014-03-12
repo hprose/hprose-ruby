@@ -95,11 +95,6 @@ module Hprose
       header['Content-Length'] = body.size.to_s
       return [statuscode, header, [body]]
     end
-    protected
-    def fix_args(args, arity, context)
-      session = context['rack.session'] ? context['rack.session'] : {}
-      ((arity > 0) and (args.length + 1 == arity)) ? args + [session] : args
-    end
     private
     def crossdomain_xml_handler(context)
       path = (context['SCRIPT_NAME'] << context['PATH_INFO']).downcase

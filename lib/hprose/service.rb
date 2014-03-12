@@ -14,7 +14,7 @@
 #                                                          #
 # hprose service for ruby                                  #
 #                                                          #
-# LastModified: Mar 11, 2014                               #
+# LastModified: Mar 12, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -243,14 +243,43 @@ module Hprose
       ostream.close
       return data
     end
-    def fix_args(args, arity, context)
-      args
+    def fix_args(args, function, context)
+      (args.length + 1 == function.arity) ? args + [context] : args
     end
-    def fire_error_event(e)
-      @on_send_error.call(e) unless @on_send_error.nil?
+    def fire_before_invoke_event(name, args, byref, context)
+      unless @on_before_invoke.nil? then
+        case @on_before_invoke.arity
+        when 0 then @on_before_invoke.call()
+        when 1 then @on_before_invoke.call(name)
+        when 2 then @on_before_invoke.call(name, args)
+        when 3 then @on_before_invoke.call(name, args, byref)
+        else @on_before_invoke.call(name, args, byref, context)
+        end
+      end
     end
-    def do_error(e)
-      fire_error_event(e)
+    def fire_after_invoke_event(name, args, byref, result, context)
+      unless @on_after_invoke.nil? then
+        case @on_after_invoke.arity
+        when 0 then @on_after_invoke.call()
+        when 1 then @on_after_invoke.call(name)
+        when 2 then @on_after_invoke.call(name, args)
+        when 3 then @on_after_invoke.call(name, args, byref)
+        when 4 then @on_after_invoke.call(name, args, byref, result)
+        else @on_after_invoke.call(name, args, byref, result, context)
+        end
+      end
+    end
+    def fire_error_event(e, context)
+      unless @on_send_error.nil? then
+        case @on_send_error.arity
+        when 0 then @on_send_error.call()
+        when 1 then @on_send_error.call(e)
+        else @on_send_error.call(e, context)
+        end
+      end
+    end
+    def do_error(e, context)
+      fire_error_event(e, context)
       error = @debug ? e.backtrace.unshift(e.message).join("\r\n") : e.message
       ostream = StringIO.new
       writer = Writer.new(ostream, true)
@@ -277,13 +306,13 @@ module Hprose
             tag = reader.check_tags([TagCall, TagEnd])
           end
         end
-        @on_before_invoke.call(name, args, byref) unless @on_before_invoke.nil?
+        fire_before_invoke_event(name, args, byref, context)
         result = nil
         if @functions.has_key?(aliasname) then
           function = @functions[aliasname]
           resultMode = @resultMode[aliasname]
           simple = @simpleMode[aliasname]
-          result = function.call(*fix_args(args, function.arity, context))
+          result = function.call(*fix_args(args, function, context))
         elsif @functions.has_key?('*') then
           function = @functions['*']
           resultMode = @resultMode['*']
@@ -292,7 +321,7 @@ module Hprose
         else
           raise Exception.exception("Can't find this function " << name)
         end
-        @on_after_invoke.call(name, args, byref, result) unless @on_after_invoke.nil?
+        fire_after_invoke_event(name, args, byref, result, context)
         ostream = StringIO.new
         if resultMode == RawWithEndTag then
           ostream.write(result)
@@ -338,7 +367,7 @@ module Hprose
         else raise Exception.exception("Wrong Request: \r\n#{data}")
         end
       rescue ::Exception => e
-        return do_error(e)
+        return do_error(e, context)
       ensure
         istream.close unless istream.nil?
       end
