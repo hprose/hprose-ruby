@@ -14,7 +14,7 @@
 #                                                          #
 # hprose tcp server for ruby                               #
 #                                                          #
-# LastModified: Mar 11, 2014                               #
+# LastModified: Mar 12, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -37,18 +37,7 @@ module Hprose
       end
       @sockets = nil
     end
-    def host
-      @host
-    end
-    def host=(host)
-      @host = host
-    end
-    def port
-      @port
-    end
-    def port=(port)
-      @port = port
-    end
+    attr_accessor :host, :port
     def start
       begin
         @sockets = Socket.tcp_server_sockets(@host, @port)

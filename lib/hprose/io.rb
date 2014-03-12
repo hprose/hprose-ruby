@@ -690,7 +690,6 @@ module Hprose
         @stream.write(usec.modulo(1000).to_s.rjust(3, '0')) if usec % 1000 > 0
       end
     end
-    protected
     def write_ref(obj)
       return @refer.write(@stream, obj)
     end
