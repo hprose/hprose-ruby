@@ -14,7 +14,7 @@
 #                                                          #
 # hprose http service for ruby                             #
 #                                                          #
-# LastModified: Mar 12, 2014                               #
+# LastModified: Mar 19, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -85,7 +85,7 @@ module Hprose
       body = ''
       begin
         if (context['REQUEST_METHOD'] == 'GET') and @get then
-          body = do_function_list
+          body = do_function_list(context)
         elsif (context['REQUEST_METHOD'] == 'POST') then
           body = handle(context['rack.input'].read, context)
         else

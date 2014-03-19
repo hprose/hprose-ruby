@@ -14,7 +14,7 @@
 #                                                          #
 # hprose service for ruby                                  #
 #                                                          #
-# LastModified: Mar 12, 2014                               #
+# LastModified: Mar 19, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -238,8 +238,8 @@ module Hprose
       add_functions(methods, aliases, resultMode, simple)
     end
     protected
-    def response_end(ostream)
-      data = @filter.output_filter(ostream.string)
+    def response_end(ostream, context)
+      data = @filter.output_filter(ostream.string, context)
       ostream.close
       return data
     end
@@ -286,7 +286,7 @@ module Hprose
       ostream.putc(TagError)
       writer.write_string(error)
       ostream.putc(TagEnd)
-      return response_end(ostream)
+      return response_end(ostream, context)
     end
     def do_invoke(istream, context)
       simpleReader = Reader.new(istream, true)
@@ -343,26 +343,26 @@ module Hprose
         end
       end while tag == TagCall
       ostream.putc(TagEnd)
-      return response_end(ostream)
+      return response_end(ostream, context)
     end
-    def do_function_list()
+    def do_function_list(context)
       ostream = StringIO.new
       writer = Writer.new(ostream, true)
       ostream.putc(TagFunctions)
       writer.write_list(@funcNames.values)
       ostream.putc(TagEnd)
-      return response_end(ostream)
+      return response_end(ostream, context)
     end
     def handle(data, context)
       istream = nil
       begin
-        data = @filter.input_filter(data)
+        data = @filter.input_filter(data, context)
         raise Exception.exception("Wrong Request: \r\n#{data}") if data.nil? or data.empty? or data[data.size - 1].ord != TagEnd
         istream = StringIO.new(data, 'rb')
         tag = istream.getbyte
         case tag
         when TagCall then return do_invoke(istream, context)
-        when TagEnd then return do_function_list
+        when TagEnd then return do_function_list(context)
         else raise Exception.exception("Wrong Request: \r\n#{data}")
         end
       rescue ::Interrupt => e

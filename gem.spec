@@ -2,7 +2,7 @@ require 'rubygems'
 
 spec = Gem::Specification.new {|s|
   s.name        = 'hprose'
-  s.version     = '1.4.9'
+  s.version     = '1.4.10'
   s.license     = 'MIT'
   s.author      = 'Ma Bingyao ( andot )'
   s.email       = 'andot@hprose.com'

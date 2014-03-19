@@ -14,7 +14,7 @@
 #                                                          #
 # hprose client for ruby                                   #
 #                                                          #
-# LastModified: Mar 11, 2014                               #
+# LastModified: Mar 19, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -113,12 +113,12 @@ module Hprose
         writer.write_boolean(true) if byref
       end
       stream.putc(TagEnd)
-      data = @filter.output_filter(stream.string)
+      data = @filter.output_filter(stream.string, self)
       stream.close
       return data
     end
     def do_input(data, args, resultMode)
-      data = @filter.input_filter(data)
+      data = @filter.input_filter(data, self)
       raise Exception.exception("Wrong Response: \r\n#{data}") if data.nil? or data.empty? or data[data.size - 1].ord != TagEnd
       return data if resultMode == RawWithEndTag
       return data.chop! if resultMode == Raw

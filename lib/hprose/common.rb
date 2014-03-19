@@ -14,7 +14,7 @@
 #                                                          #
 # hprose common library for ruby                           #
 #                                                          #
-# LastModified: Dec 2, 2012                                #
+# LastModified: Mar 19, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -30,10 +30,10 @@ module Hprose
   end
 
   class Filter
-    def input_filter(data)
+    def input_filter(data, context)
       return data
     end
-    def output_filter(data)
+    def output_filter(data, context)
       return data
     end
   end
