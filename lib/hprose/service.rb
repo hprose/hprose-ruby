@@ -14,7 +14,7 @@
 #                                                          #
 # hprose service for ruby                                  #
 #                                                          #
-# LastModified: Mar 19, 2014                               #
+# LastModified: Mar 22, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -28,7 +28,7 @@ module Hprose
     include Tags
     include ResultMode
     public
-    attr_accessor :debug, :filter, :simple
+    attr_accessor :debug, :simple
     attr_accessor :on_before_invoke, :on_after_invoke
     attr_accessor :on_send_error
     def initialize
@@ -37,11 +37,25 @@ module Hprose
       @resultMode = {}
       @simpleMode = {}
       @debug = $DEBUG
-      @filter = Filter.new
+      @filters = []
       @simple = false
       @on_before_invoke = nil
       @on_after_invoke = nil
       @on_send_error = nil
+    end
+    def filter
+      return nil if @filters.empty?
+      return @filters[0]
+    end
+    def filter=(filter)
+      @filters.clear
+      @filters << filter unless (filter.nil?)
+    end
+    def add_filter(filter)
+      @filters << filter
+    end
+    def remove_filter(filter)
+      @filters.delete(filter)
     end
     def add(*args, &block)
       case args.size
@@ -238,10 +252,16 @@ module Hprose
       add_functions(methods, aliases, resultMode, simple)
     end
     protected
-    def response_end(ostream, context)
-      data = @filter.output_filter(ostream.string, context)
-      ostream.close
+    def output_filter(data, context)
+      @filters.each do | filter |
+        data = filter.output_filter(data, context)
+      end
       return data
+    end
+    def response_end(ostream, context)
+      data = ostream.string
+      ostream.close
+      return output_filter(data, context)
     end
     def fix_args(args, function, context)
       (args.length + 1 == function.arity) ? args + [context] : args
@@ -321,10 +341,11 @@ module Hprose
           raise Exception.exception("Can't find this function " << name)
         end
         fire_after_invoke_event(name, args, byref, result, context)
-        ostream = StringIO.new
         if resultMode == RawWithEndTag then
-          return @filter.output_filter(result)
-        elsif resultMode == Raw then
+          return output_filter(result, context)
+        end
+        ostream = StringIO.new
+        if resultMode == Raw then
           ostream.write(result)
         else
           ostream.putc(TagResult)
@@ -356,7 +377,9 @@ module Hprose
     def handle(data, context)
       istream = nil
       begin
-        data = @filter.input_filter(data, context)
+        @filters.reverse_each do | filter |
+          data = filter.input_filter(data, context)
+        end
         raise Exception.exception("Wrong Request: \r\n#{data}") if data.nil? or data.empty? or data[data.size - 1].ord != TagEnd
         istream = StringIO.new(data, 'rb')
         tag = istream.getbyte

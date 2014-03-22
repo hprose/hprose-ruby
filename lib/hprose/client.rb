@@ -14,7 +14,7 @@
 #                                                          #
 # hprose client for ruby                                   #
 #                                                          #
-# LastModified: Mar 19, 2014                               #
+# LastModified: Mar 22, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -47,7 +47,7 @@ module Hprose
     end
     def initialize(uri = nil)
       @onerror = nil
-      @filter = Filter.new
+      @filters = []
       @simple = false
       self.uri = uri
     end
@@ -55,7 +55,21 @@ module Hprose
       @uri = URI.parse(uri) unless uri.nil?
     end
     attr_reader :uri
-    attr_accessor :filter, :simple
+    attr_accessor :simple
+    def filter
+      return nil if @filters.empty?
+      return @filters[0]
+    end
+    def filter=(filter)
+      @filters.clear
+      @filters << filter unless (filter.nil?)
+    end
+    def add_filter(filter)
+      @filters << filter
+    end
+    def remove_filter(filter)
+      @filters.delete(filter)
+    end
     def onerror(&block)
       @onerror = block if block_given?
       @onerror
@@ -113,12 +127,17 @@ module Hprose
         writer.write_boolean(true) if byref
       end
       stream.putc(TagEnd)
-      data = @filter.output_filter(stream.string, self)
+      data = stream.string
       stream.close
+      @filters.each do | filter |
+        data = filter.output_filter(data, self)
+      end
       return data
     end
     def do_input(data, args, resultMode)
-      data = @filter.input_filter(data, self)
+      @filters.reverse_each do | filter |
+        data = filter.input_filter(data, self)
+      end
       raise Exception.exception("Wrong Response: \r\n#{data}") if data.nil? or data.empty? or data[data.size - 1].ord != TagEnd
       return data if resultMode == RawWithEndTag
       return data.chop! if resultMode == Raw
