@@ -14,7 +14,7 @@
 #                                                          #
 # hprose http client for ruby                              #
 #                                                          #
-# LastModified: Mar 12, 2014                               #
+# LastModified: Apr 12, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -33,7 +33,7 @@ module Hprose
       @http = Net::HTTP
       @header = {}
       @timeout = 30
-      @keepalive = false
+      @keepalive = true
       @keepalive_timeout = 300
     end
     attr_reader :header
