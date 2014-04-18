@@ -14,7 +14,7 @@
 #                                                          #
 # hprose http service for ruby                             #
 #                                                          #
-# LastModified: Mar 19, 2014                               #
+# LastModified: Apr 18, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
@@ -29,6 +29,7 @@ module Hprose
       @crossdomain = false
       @p3p = false
       @get = true
+      @origins = {}
       @crossdomain_xml_file = nil
       @crossdomain_xml_content = nil
       @client_access_policy_xml_file = nil
@@ -45,6 +46,12 @@ module Hprose
     attr_reader :crossdomain_xml_content
     attr_reader :client_access_policy_xml_file
     attr_reader :client_access_policy_xml_content
+    def add_access_control_allow_origin(origin)
+      @origins[origin] = true
+    end
+    def remove_access_control_allow_origin(origin)
+      @origins.delete(origin)
+    end
     def crossdomain_xml_file=(filepath)
       @crossdomain_xml_file = filepath
       f = File.open(filepath)
@@ -140,8 +147,10 @@ module Hprose
       if @crossdomain then
         origin = context['HTTP_ORIGIN']
         if (origin and origin != 'null') then
-          header['Access-Control-Allow-Origin'] = origin
-          header['Access-Control-Allow-Credentials'] = 'true'
+          if (@origins.size == 0) or @origins.has_key?(origin) then
+            header['Access-Control-Allow-Origin'] = origin
+            header['Access-Control-Allow-Credentials'] = 'true'
+          end
         else
           header['Access-Control-Allow-Origin'] = '*'
         end
