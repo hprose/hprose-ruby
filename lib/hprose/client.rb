@@ -40,6 +40,8 @@ module Hprose
         return HttpClient.new(uri)
       when 'tcp', 'tcp4', 'tcp6' then
         return TcpClient.new(uri)
+      when 'unix' then
+        return UnixClient.new(uri)
       else
         raise Exception.exception("The " << u.scheme << " client isn't implemented.")
       end

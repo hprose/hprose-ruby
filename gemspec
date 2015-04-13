@@ -1,6 +1,4 @@
-require 'rubygems'
-
-spec = Gem::Specification.new {|s|
+Gem::Specification.new do |s|
   s.name        = 'hprose'
   s.version     = '1.5.0'
   s.license     = 'MIT'
@@ -37,8 +35,4 @@ EOF
   }
   s.require_path = 'lib'
   s.has_rdoc     = false
-}
-
-if $0 == __FILE__
-  Gem::Builder.new(spec).build
 end

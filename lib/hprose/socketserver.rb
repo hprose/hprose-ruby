@@ -9,51 +9,49 @@
 
 ############################################################
 #                                                          #
-# hprose/tcpserver.rb                                      #
+# hprose/socketserver.rb                                   #
 #                                                          #
-# hprose tcp server for ruby                               #
+# hprose socket server for ruby                            #
 #                                                          #
-# LastModified: Mar 12, 2014                               #
+# LastModified: Apr 13, 2014                               #
 # Author: Ma Bingyao <andot@hprose.com>                    #
 #                                                          #
 ############################################################
 
-require "hprose/io"
 require "hprose/service"
 require "uri"
 require "socket"
 
 module Hprose
-  class TcpServer < Service
+  class SocketServer < Service
+    protected
+    def create_server_sockets
+      raise NotImplementedError.new("#{self.class.name}#create_server_sockets is an abstract method")
+    end
+    public
     def initialize(uri = nil)
       super()
-      @host = nil
-      @port = 0
+      @uri = nil
       unless uri.nil? then
-        u = URI.parse(uri)
-        @host = u.host
-        @port = u.port
+        @uri = URI.parse(uri)
       end
       @sockets = nil
     end
-    attr_accessor :host, :port
     def start
       begin
-        @sockets = Socket.tcp_server_sockets(@host, @port)
-        @sockets.each do
-          Socket.accept_loop(@sockets) do |sock, client_addrinfo|
-            Thread.start do
-              begin
-                loop do
-                  buf = sock.recv(4, 0)
-                  n = buf[0].ord << 24 | buf[1].ord << 16 | buf[2].ord << 8 | buf[3].ord
-                  data = handle(sock.recv(n, 0), client_addrinfo)
-                  n = data.size
-                  sock.send("" << (n >> 24 & 0xff) << (n >> 16 & 0xff) << (n >> 8 & 0xff) << (n & 0xff) << data, 0)
-                end
-              ensure
-                sock.close
+        create_server_sockets
+        Socket.accept_loop(@sockets) do |sock, client_addrinfo|
+          Thread.start do
+            begin
+              loop do
+                buf = sock.recv(4, 0)
+                n = buf[0].ord << 24 | buf[1].ord << 16 | buf[2].ord << 8 | buf[3].ord
+                data = handle(sock.recv(n, 0), client_addrinfo)
+                n = data.size
+                sock.send("" << (n >> 24 & 0xff) << (n >> 16 & 0xff) << (n >> 8 & 0xff) << (n & 0xff) << data, 0)
               end
+            ensure
+              sock.close
             end
           end
         end
@@ -68,5 +66,5 @@ module Hprose
          @sockets = nil
       end
     end
-  end # class TcpServer
+  end # class SocketServer
 end # module Hprose

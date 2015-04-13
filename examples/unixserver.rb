@@ -32,8 +32,7 @@ end
 
 HproseClassManager.register(User, "User")
 
-server = HproseTcpServer.new
-server.port = 4321
+server = HproseUnixServer.new('unix:/tmp/my.sock')
 
 server.add(:hello)
 server.add(:sum) { |*num|

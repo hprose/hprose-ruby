@@ -30,10 +30,14 @@ module Hprose
   autoload :Formatter, 'hprose/io'
   autoload :Client, 'hprose/client'
   autoload :HttpClient, 'hprose/httpclient'
+  autoload :SocketClient, 'hprose/socketclient'
   autoload :TcpClient, 'hprose/tcpclient'
+  autoload :UnixClient, 'hprose/unixclient'
   autoload :Service, 'hprose/service'
   autoload :HttpService, 'hprose/httpservice'
+  autoload :SocketServer, 'hprose/socketserver'
   autoload :TcpServer, 'hprose/tcpserver'
+  autoload :UnixServer, 'hprose/unixserver'
 end
 
 Object.const_set(:HproseException, Hprose.const_get(:Exception))
@@ -47,7 +51,11 @@ Object.const_set(:HproseWriter, Hprose.const_get(:Writer))
 Object.const_set(:HproseFormatter, Hprose.const_get(:Formatter))
 Object.const_set(:HproseClient, Hprose.const_get(:Client))
 Object.const_set(:HproseHttpClient, Hprose.const_get(:HttpClient))
+Object.const_set(:HproseSocketClient, Hprose.const_get(:SocketClient))
 Object.const_set(:HproseTcpClient, Hprose.const_get(:TcpClient))
+Object.const_set(:HproseUnixClient, Hprose.const_get(:UnixClient))
 Object.const_set(:HproseService, Hprose.const_get(:Service))
 Object.const_set(:HproseHttpService, Hprose.const_get(:HttpService))
+Object.const_set(:HproseSocketServer, Hprose.const_get(:SocketServer))
 Object.const_set(:HproseTcpServer, Hprose.const_get(:TcpServer))
+Object.const_set(:HproseUnixServer, Hprose.const_get(:UnixServer))
