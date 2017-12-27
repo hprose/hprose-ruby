@@ -65,7 +65,7 @@ module Hprose
       @header.each { |name, value|
         headers[name] = value
       }
-      headers['Content-Length'] = data.size.to_s
+      headers['Content-Length'] = data.bytesize.to_s
       headers['Cookie'] = _get_cookie(@uri.host.downcase, @uri.path, @uri.scheme == 'https')
       reqpath = @uri.path
       reqpath << '?' << @uri.query unless @uri.query.nil?
