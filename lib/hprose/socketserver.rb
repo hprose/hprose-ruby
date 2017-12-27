@@ -47,7 +47,7 @@ module Hprose
                 buf = sock.recv(4, 0)
                 n = buf[0].ord << 24 | buf[1].ord << 16 | buf[2].ord << 8 | buf[3].ord
                 data = handle(sock.recv(n, 0), client_addrinfo)
-                n = data.size
+                n = data.bytesize
                 sock.send("" << (n >> 24 & 0xff) << (n >> 16 & 0xff) << (n >> 8 & 0xff) << (n & 0xff) << data, 0)
               end
             ensure
