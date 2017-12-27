@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'rubygems'
 require 'hprose'
 
@@ -11,6 +12,10 @@ client.onerror = :error
 math = client.use_service(nil, :math)
 
 client.hello('World') { |result|
+  puts result
+}.join
+
+client.hello('中文') { |result|
   puts result
 }.join
 

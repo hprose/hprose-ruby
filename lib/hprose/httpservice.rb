@@ -101,7 +101,7 @@ module Hprose
       rescue ::Exception => e
         body = do_error(e)
       end
-      header['Content-Length'] = body.size.to_s
+      header['Content-Length'] = body.bytesize.to_s
       return [statuscode, header, [body]]
     end
     private

@@ -112,7 +112,7 @@ module Hprose
         entry.socket = create_socket
       end
       begin
-        n = data.size
+        n = data.bytesize
         entry.socket.send("" << (n >> 24 & 0xff) << (n >> 16 & 0xff) << (n >> 8 & 0xff) << (n & 0xff) << data, 0)
         buf = entry.socket.recv(4, 0)
         n = buf[0].ord << 24 | buf[1].ord << 16 | buf[2].ord << 8 | buf[3].ord
