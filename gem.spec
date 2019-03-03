@@ -37,6 +37,7 @@ EOF
   }
   s.require_path = 'lib'
   s.has_rdoc     = false
+  s.add_runtime_dependency 'uuidtools'
 }
 
 if $0 == __FILE__
